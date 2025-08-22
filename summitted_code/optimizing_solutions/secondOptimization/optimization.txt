@@ -1,0 +1,41 @@
+Second Optimization: Time Complexity Improvements and Changes
+
+Comparison with First Optimization:
+
+FIRST OPTIMIZATION Time Complexities:
+- lock(name, userId): O(h) - height of tree
+- unlock(name, userId): O(h) - height of tree  
+- upgrade(name, userId): O(n_subtree + k·h) - subtree size + k locked descendants × height
+
+SECOND OPTIMIZATION Time Complexities:
+- lock(name, userId): O(log h) - using binary lifting for ancestor checks
+- unlock(name, userId): O(log h) - using binary lifting for ancestor updates
+- upgrade(name, userId): O(n_subtree + k·log h) - subtree size + k locked descendants × log height
+
+Key Changes Made:
+
+1. **Binary Lifting Implementation**:
+   - Precompute ancestor tables for each node at powers of 2
+   - Replace O(h) ancestor traversal with O(log h) binary search
+   - Added ancestor[][] array to store 2^j th ancestor of each node
+
+2. **Lazy Propagation for Locked Descendants**:
+   - Instead of updating all ancestors immediately, use lazy updates
+   - Batch ancestor updates during upgrade operations
+   - Reduce per-locked-descendant work from O(h) to O(log h)
+
+3. **Optimized Ancestor Checks**:
+   - hasLockedAncestor(): O(h) → O(log h) using binary lifting
+   - updateDescendantsOfAncestor(): O(h) → O(log h) using binary lifting
+   - collectLockedDescendantsByUid(): remains O(n_subtree) but with faster ancestor access
+
+4. **Memory vs Time Trade-off**:
+   - Added O(n × log h) memory for ancestor tables
+   - Reduced time complexity from O(h) to O(log h) for ancestor operations
+   - Overall improvement: O(n_subtree + k·h) → O(n_subtree + k·log h) for upgrade
+
+Specific Implementation Changes:
+- Added binaryLifting() method for precomputing ancestor tables
+- Modified hasLockedAncestor() to use binary lifting
+- Updated updateDescendantsOfAncestor() with binary lifting
+- Maintained same interface but with improved internal algorithms

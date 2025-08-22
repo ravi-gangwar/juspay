@@ -1,0 +1,26 @@
+Improvements in lock, unlock, and upgrade
+
+Data structure changes
+- Added a lockedDescendants Set<Node> on each node to track all locked nodes in its subtree.
+- Added updateDescendantsOfAncestor(node, lockedNode, isAdded) to maintain ancestors' sets in O(h).
+
+lock(name, userId)
+- Validates: node not locked (O(1)), no locked ancestor (O(h)), and no locked descendants using set emptiness (O(1)).
+- On success: marks node locked (O(1)) and adds node to every ancestor's lockedDescendants (O(h)).
+- Time complexity: O(h).
+
+unlock(name, userId)
+- Validates: node is locked and owned by user (O(1)).
+- On success: clears lock (O(1)) and removes node from every ancestor's lockedDescendants (O(h)).
+- Time complexity: O(h).
+
+upgrade(name, userId)
+- Validates: node exists, is not locked (O(1)), has no locked ancestors (O(h)), and has at least one locked descendant (O(1)).
+- Ensures all locked nodes in the subtree are by user via collectingLockedDescendantByUid DFS (O(n_subtree)).
+- Unlocks each locked descendant (k of them): clear lock (O(1)) + remove from ancestors (O(h)) ⇒ O(k·h).
+- Locks the current node and adds it to ancestors (O(h)).
+- Time complexity: O(n_subtree + k·h).
+
+Why this is better
+- Avoids repeated full subtree scans for lock/unlock by maintaining ancestor sets incrementally.
+- Moves most work to upgrade, where batch changes are expected, while keeping common lock/unlock at O(h).

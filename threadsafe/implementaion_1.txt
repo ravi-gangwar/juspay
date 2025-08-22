@@ -1,0 +1,23 @@
+public boolean lock(String name, int userId){
+    // O(1) - HashMap lookup
+    Node node = nodeMap.get(name);
+    
+    // O(1) - Check if node is already locked
+    if(node.isLocked) return false;
+    
+    // O(h) - Check if any ancestor is locked (linear ancestor traversal)
+    if(hasLockedAncestor(node)) return false;
+    
+    // O(1) - Check if any descendants are locked (using HashSet)
+    if(node.lockedDescendants.size() > 0) return false;
+
+    // O(1) - Lock the node
+    node.isLocked = true;
+    // O(1) - Set the user ID
+    node.lockedBy = userId;
+    
+    // O(h) - Update all ancestors' locked descendants sets and user history
+    updateDescendantsOfAncestor(node, node, true);
+    
+    return true;
+}
